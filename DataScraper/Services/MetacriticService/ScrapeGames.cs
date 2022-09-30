@@ -18,15 +18,16 @@ public class ScrapeGames : IScrapeGames
     };
 
     private readonly GameDbContext _dbContext;
+    private readonly HttpClient _client;
     public ScrapeGames(GameDbContext dbContext)
     {
         _dbContext = dbContext;
+        _client = new HttpClient();
     }
 
     public async Task<IEnumerable<GameDto>> ScrapeDataFromMetacritic(Platforms platform)
     {
-        HtmlWeb web = new();
-        var doc = await web.LoadFromWebAsync(_metacriticUrls.GetValueOrDefault(platform));
+        var doc = await GetHtmlAsync(_metacriticUrls[platform]);
 
         var games = new List<GameDto>();
 
@@ -34,7 +35,7 @@ public class ScrapeGames : IScrapeGames
 
         for (int i = 0; i <= lastPage - 1; i++)
         {
-            doc = await web.LoadFromWebAsync(_metacriticUrls.GetValueOrDefault(platform) + $"&page={i}");
+            doc = await GetHtmlAsync(_metacriticUrls.GetValueOrDefault(platform) + $"&page={i}");
             var gamesOnPage = doc.QuerySelectorAll("tr.expand_collapse").ToList();
 
             foreach (var game in gamesOnPage)
@@ -62,5 +63,16 @@ public class ScrapeGames : IScrapeGames
         await AddToDatabase.AddGames(games, _dbContext);
 
         return games;
+    }
+
+    private async Task<HtmlDocument> GetHtmlAsync(string uri)
+    {
+        var html = await _client.GetStringAsync(new Uri(uri));
+
+        var doc = new HtmlDocument();
+
+        doc.LoadHtml(html);
+
+        return doc;
     }
 }

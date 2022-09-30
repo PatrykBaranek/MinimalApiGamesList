@@ -41,7 +41,7 @@ public static class MetacriticRequests
             return gamePlatforms;
         });
 
-        app.MapGet("/gamePlatform/{gameId}",async (GameDbContext gameDbContext, Guid gameId) =>
+        app.MapGet("/gamePlatform/{gameId:guid}",async (GameDbContext gameDbContext, Guid gameId) =>
         {
             var gamePlatforms = await gameDbContext.GamePlatform.Where(x => x.GameId == gameId).ToListAsync();
 

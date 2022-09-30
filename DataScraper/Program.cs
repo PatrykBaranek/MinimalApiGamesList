@@ -3,6 +3,7 @@ using DataScraper.Entities;
 using DataScraper.Requests;
 using DataScraper.Services.MetacriticService;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 var builder = WebApplication.CreateBuilder(args);
 
